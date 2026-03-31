@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HONGWOO — Terminal Resume</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --green: #00ff41;
+    --green-dim: #00cc33;
+    --green-dark: #003b00;
+    --amber: #ffb000;
+    --red: #ff3b3b;
+    --bg: #0a0a0a;
+    --terminal-bg: #0d0d0d;
+    --scanline: rgba(0,255,65,0.03);
+  }
+
+  html, body {
+    height: 100%;
+    background: var(--bg);
+    color: var(--green);
+    font-family: 'JetBrains Mono', 'Courier New', monospace;
+    overflow: hidden;
+  }
+
+  /* ── Matrix Canvas ── */
+  #matrix-canvas {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 0;
+    opacity: 0.18;
+  }
+
+  /* ── Boot Screen ── */
+  #boot-screen {
+    position: fixed;
+    inset: 0;
+    background: #000;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    color: var(--green);
+    padding: 20px;
+  }
+  #boot-screen pre {
+    color: var(--green);
+    font-size: clamp(6px, 1.5vw, 14px);
+    line-height: 1.2;
+    text-shadow: 0 0 8px var(--green);
+    margin-bottom: 30px;
+  }
+  .boot-line {
+    width: 600px;
+    max-width: 90vw;
+    margin: 2px 0;
+    opacity: 0;
+  }
+  .boot-line.ok::after {
+    content: '  [ OK ]';
+    color: var(--green);
+    float: right;
+  }
+  .boot-line.fail::after {
+    content: '  [FAIL]';
+    color: var(--red);
+    float: right;
+  }
+  #boot-progress {
+    width: 600px;
+    max-width: 90vw;
+    height: 4px;
+    background: #111;
+    margin-top: 20px;
+    border: 1px solid var(--green-dark);
+  }
+  #boot-bar {
+    height: 100%;
+    width: 0%;
+    background: var(--green);
+    transition: width 0.1s linear;
+    box-shadow: 0 0 8px var(--green);
+  }
+
+  /* ── Main Window ── */
+  #app {
+    position: relative;
+    z-index: 1;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    opacity: 0;
+  }
+
+  /* ── Terminal Frame ── */
+  .terminal {
+    width: 100%;
+    max-width: 860px;
+    height: calc(100vh - 32px);
+    max-height: 700px;
+    background: rgba(10,10,10,0.97);
+    border: 1px solid #1a3a1a;
+    border-radius: 10px;
+    box-shadow: 0 0 60px rgba(0,255,65,0.12), 0 30px 80px rgba(0,0,0,0.8);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* CRT scanline overlay */
+  .terminal::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      to bottom,
+      transparent 0px,
+      transparent 2px,
+      var(--scanline) 2px,
+      var(--scanline) 4px
+    );
+    pointer-events: none;
+    z-index: 10;
+    border-radius: 10px;
+  }
+
+  /* ── Title Bar ── */
+  .title-bar {
+    display: flex;
+    align-items: center;
+    background: #1a1a1a;
+    padding: 10px 14px;
+    border-bottom: 1px solid #1e3a1e;
+    flex-shrink: 0;
+    gap: 8px;
+  }
+  .traffic-lights { display: flex; gap: 6px; }
+  .dot {
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+  .dot:hover { opacity: 0.7; }
+  .dot.red   { background: #ff5f57; box-shadow: 0 0 4px #ff5f57; }
+  .dot.yellow{ background: #febc2e; box-shadow: 0 0 4px #febc2e; }
+  .dot.green { background: #28c840; box-shadow: 0 0 4px #28c840; }
+  .title-text {
+    flex: 1;
+    text-align: center;
+    font-size: 12px;
+    color: #888;
+    margin-right: 54px;
+  }
+
+  /* ── Output Area ── */
+  .output {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+    font-size: 13px;
+    line-height: 1.7;
+    scroll-behavior: smooth;
+  }
+  .output::-webkit-scrollbar { width: 4px; }
+  .output::-webkit-scrollbar-track { background: transparent; }
+  .output::-webkit-scrollbar-thumb { background: var(--green-dark); border-radius: 2px; }
+
+  /* ── Input Bar ── */
+  .input-bar {
+    display: flex;
+    align-items: center;
+    padding: 10px 16px;
+    border-top: 1px solid #1e3a1e;
+    background: rgba(0,20,0,0.4);
+    flex-shrink: 0;
+    gap: 8px;
+  }
+  .prompt-label {
+    color: var(--green);
+    font-size: 13px;
+    white-space: nowrap;
+    text-shadow: 0 0 6px var(--green);
+  }
+  .prompt-label span { color: var(--amber); }
+  #cmd-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--green);
+    font-family: inherit;
+    font-size: 13px;
+    caret-color: transparent;
+  }
+  #cursor {
+    display: inline-block;
+    width: 8px; height: 14px;
+    background: var(--green);
+    vertical-align: text-bottom;
+    animation: blink 1s step-end infinite;
+    box-shadow: 0 0 6px var(--green);
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  /* ── Output Styling ── */
+  .line { display: block; }
+  .cmd-echo { color: var(--amber); }
+  .cmd-echo::before { content: '❯ '; color: var(--green); }
+  .section-title {
+    color: var(--green);
+    font-size: 14px;
+    font-weight: 700;
+    text-shadow: 0 0 10px var(--green);
+    border-bottom: 1px solid var(--green-dark);
+    padding-bottom: 4px;
+    margin: 4px 0;
+  }
+  .label  { color: var(--amber); }
+  .dim    { color: #556655; }
+  .bright { color: #88ff88; }
+  .error  { color: var(--red); }
+  .info   { color: #00aaff; }
+  .success{ color: var(--green); text-shadow: 0 0 6px var(--green); }
+  .tag {
+    display: inline-block;
+    border: 1px solid var(--green-dark);
+    color: var(--green-dim);
+    padding: 1px 6px;
+    border-radius: 3px;
+    font-size: 11px;
+    margin: 2px 2px 2px 0;
+  }
+
+  /* Progress bar */
+  .skill-row { display: flex; align-items: center; gap: 8px; margin: 3px 0; }
+  .skill-name { width: 120px; color: var(--amber); font-size: 12px; }
+  .bar-track {
+    flex: 1;
+    height: 8px;
+    background: #111;
+    border: 1px solid #1e3a1e;
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--green-dark), var(--green));
+    border-radius: 2px;
+    box-shadow: 0 0 6px var(--green);
+    width: 0%;
+    transition: width 1s ease;
+  }
+  .bar-pct { width: 35px; color: var(--green-dim); font-size: 11px; text-align: right; }
+
+  /* Entry blocks */
+  .entry { margin: 6px 0; border-left: 2px solid var(--green-dark); padding-left: 10px; }
+  .entry-title { color: var(--green); font-weight: 700; }
+  .entry-sub   { color: var(--amber); font-size: 12px; }
+  .entry-meta  { color: #556655; font-size: 11px; }
+  .entry-desc  { color: #aaa; font-size: 12px; margin-top: 2px; }
+
+  /* ASCII art */
+  .ascii { color: var(--green); font-size: clamp(7px, 1.4vw, 11px); line-height: 1.15; text-shadow: 0 0 6px var(--green); white-space: pre; }
+
+  /* Neofetch */
+  .neo-grid { display: flex; gap: 20px; flex-wrap: wrap; margin: 4px 0; }
+  .neo-art  { color: var(--green); font-size: clamp(8px, 1.4vw, 11px); line-height: 1.2; white-space: pre; text-shadow: 0 0 6px var(--green); }
+  .neo-info { font-size: 12px; line-height: 1.8; }
+
+  /* sudo hire */
+  .hire-box {
+    border: 1px solid var(--green);
+    padding: 10px 16px;
+    margin: 6px 0;
+    border-radius: 4px;
+    box-shadow: 0 0 20px rgba(0,255,65,0.15);
+  }
+  .hire-title { color: var(--green); font-size: 16px; font-weight: 700; text-shadow: 0 0 12px var(--green); }
+
+  /* help table */
+  .help-row { display: flex; gap: 0; margin: 2px 0; }
+  .help-cmd  { color: var(--amber); width: 140px; flex-shrink: 0; }
+  .help-desc { color: #88bb88; }
+
+  /* Typing animation */
+  .typing { overflow: hidden; white-space: nowrap; border-right: 2px solid var(--green); animation: typing 1.5s steps(40) forwards, blink-border 0.8s step-end infinite; }
+  @keyframes typing { from { width: 0 } to { width: 100% } }
+  @keyframes blink-border { 50% { border-color: transparent } }
+
+  /* Mobile */
+  @media (max-width: 600px) {
+    body { overflow: hidden; }
+    .terminal { border-radius: 6px; font-size: 11px; }
+    .output { font-size: 11px; padding: 10px; }
+    .skill-name { width: 80px; font-size: 10px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Matrix Rain -->
+<canvas id="matrix-canvas"></canvas>
+
+<!-- Boot Screen -->
+<div id="boot-screen">
+  <pre id="boot-logo">
+ ██╗  ██╗ ██████╗ ███╗   ██╗ ██████╗ ██╗    ██╗ ██████╗  ██████╗
+ ██║  ██║██╔═══██╗████╗  ██║██╔════╝ ██║    ██║██╔═══██╗██╔═══██╗
+ ███████║██║   ██║██╔██╗ ██║██║  ███╗██║ █╗ ██║██║   ██║██║   ██║
+ ██╔══██║██║   ██║██║╚██╗██║██║   ██║██║███╗██║██║   ██║██║   ██║
+ ██║  ██║╚██████╔╝██║ ╚████║╚██████╔╝╚███╔███╔╝╚██████╔╝╚██████╔╝
+ ╚═╝  ╚═╝ ╚═════╝ ╚═╝  ╚═══╝ ╚═════╝  ╚══╝╚══╝  ╚═════╝  ╚═════╝</pre>
+  <div id="boot-lines"></div>
+  <div id="boot-progress"><div id="boot-bar"></div></div>
+</div>
+
+<!-- Main App -->
+<div id="app">
+  <div class="terminal">
+    <div class="title-bar">
+      <div class="traffic-lights">
+        <div class="dot red"></div>
+        <div class="dot yellow"></div>
+        <div class="dot green"></div>
+      </div>
+      <div class="title-text">hongwoo@MOBYUS — resume v1.0.0</div>
+    </div>
+    <div class="output" id="output"></div>
+    <div class="input-bar">
+      <div class="prompt-label">hongwoo<span>@MOBYUS</span>&nbsp;~&nbsp;❯</div>
+      <input id="cmd-input" type="text" autocomplete="off" spellcheck="false" autocorrect="off" placeholder="type a command..." />
+      <div id="cursor"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════
+//  Matrix Rain
+// ══════════════════════════════════════
+(function() {
+  const canvas = document.getElementById('matrix-canvas');
+  const ctx = canvas.getContext('2d');
+  let W, H, cols, drops;
+  const chars = 'アイウエオカキクケコサシスセソタチツテトナニヌネノABCDEFGHIJKLMNOP0123456789@#$%&';
+
+  function init() {
+    W = canvas.width = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+    cols = Math.floor(W / 18);
+    drops = Array(cols).fill(1);
+  }
+
+  function draw() {
+    ctx.fillStyle = 'rgba(0,0,0,0.05)';
+    ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = '#00ff41';
+    ctx.font = '14px monospace';
+    drops.forEach((y, i) => {
+      const ch = chars[Math.floor(Math.random() * chars.length)];
+      ctx.fillText(ch, i * 18, y * 18);
+      if (y * 18 > H && Math.random() > 0.975) drops[i] = 0;
+      drops[i]++;
+    });
+  }
+
+  init();
+  setInterval(draw, 50);
+  window.addEventListener('resize', init);
+})();
+
+// ══════════════════════════════════════
+//  Boot Sequence
+// ══════════════════════════════════════
+const bootMessages = [
+  { text: 'Initializing kernel modules...', status: 'ok', delay: 150 },
+  { text: 'Loading personality matrix...', status: 'ok', delay: 120 },
+  { text: 'Mounting filesystem: /experience', status: 'ok', delay: 100 },
+  { text: 'Mounting filesystem: /skills', status: 'ok', delay: 80 },
+  { text: 'Mounting filesystem: /projects', status: 'ok', delay: 90 },
+  { text: 'Starting coffee daemon... ☕', status: 'ok', delay: 200 },
+  { text: 'Checking for bugs... (1 found, 1 fixed)', status: 'ok', delay: 300 },
+  { text: 'Loading imposter syndrome module...', status: 'fail', delay: 120 },
+  { text: 'Overriding with confidence.exe...', status: 'ok', delay: 150 },
+  { text: 'Calibrating terminal aesthetics...', status: 'ok', delay: 100 },
+  { text: 'System ready. Welcome, recruiter.', status: 'ok', delay: 300 },
+];
+
+async function runBoot() {
+  const container = document.getElementById('boot-lines');
+  const bar = document.getElementById('boot-bar');
+  let progress = 0;
+
+  for (let i = 0; i < bootMessages.length; i++) {
+    const msg = bootMessages[i];
+    await sleep(msg.delay);
+    const el = document.createElement('div');
+    el.className = `boot-line ${msg.status}`;
+    el.textContent = msg.text;
+    container.appendChild(el);
+    el.style.opacity = '1';
+    progress = ((i + 1) / bootMessages.length) * 100;
+    bar.style.width = progress + '%';
+  }
+
+  await sleep(600);
+  const bootScreen = document.getElementById('boot-screen');
+  bootScreen.style.transition = 'opacity 0.8s';
+  bootScreen.style.opacity = '0';
+  await sleep(800);
+  bootScreen.style.display = 'none';
+  const app = document.getElementById('app');
+  app.style.transition = 'opacity 0.5s';
+  app.style.opacity = '1';
+  await sleep(300);
+  showWelcome();
+  document.getElementById('cmd-input').focus();
+}
+
+// ══════════════════════════════════════
+//  Terminal Output Engine
+// ══════════════════════════════════════
+const output = document.getElementById('output');
+
+function print(html, cls = '') {
+  const el = document.createElement('span');
+  el.className = `line ${cls}`;
+  el.innerHTML = html;
+  output.appendChild(el);
+  output.appendChild(document.createElement('br'));
+  output.scrollTop = output.scrollHeight;
+}
+
+function blank() { print(''); }
+
+async function typeOut(text, cls = '', speed = 18) {
+  const el = document.createElement('span');
+  el.className = `line ${cls}`;
+  output.appendChild(el);
+  output.appendChild(document.createElement('br'));
+  for (const ch of text) {
+    el.textContent += ch;
+    output.scrollTop = output.scrollHeight;
+    await sleep(speed);
+  }
+}
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+// ══════════════════════════════════════
+//  Commands
+// ══════════════════════════════════════
+const commands = {
+
+  help() {
+    blank();
+    print('<span class="section-title">┌─ AVAILABLE COMMANDS ─────────────────────</span>');
+    const cmds = [
+      ['experience', 'Work history & roles'],
+      ['education',  'Academic background & certifications'],
+      ['skills',     'Tech stack & proficiency'],
+      ['projects',   'Notable projects'],
+      ['contact',    'Get in touch'],
+      ['neofetch',   'System info (flex mode)'],
+      ['clear',      'Clear terminal'],
+      ['sudo hire hongwoo', '👀'],
+    ];
+    cmds.forEach(([cmd, desc]) => {
+      print(`<span class="help-cmd">&nbsp;&nbsp;${cmd}</span><span class="help-desc">→ ${desc}</span>`);
+    });
+    print('<span class="section-title">└──────────────────────────────────────────</span>');
+    blank();
+  },
+
+  experience() {
+    blank();
+    print('<span class="section-title">▶ WORK EXPERIENCE</span>');
+    blank();
+
+    const jobs = [
+      {
+        title: 'Full Stack Developer',
+        company: 'MOBYUS',
+        period: '2023.01 — Present',
+        location: 'Seoul, South Korea',
+        bullets: [
+          'Architected and maintained microservice-based web platforms serving 50K+ DAU',
+          'Led migration from monolith to Next.js + NestJS stack, reducing TTFB by 40%',
+          'Built real-time fleet tracking dashboard with WebSocket & React',
+          'Established CI/CD pipelines with GitHub Actions + Docker + AWS ECS',
+        ]
+      },
+      {
+        title: 'Frontend Developer',
+        company: 'Freelance / Contract',
+        period: '2021.06 — 2022.12',
+        location: 'Remote',
+        bullets: [
+          'Delivered 10+ client projects (e-commerce, SaaS dashboards, landing pages)',
+          'Built reusable component libraries with React & Storybook',
+          'Improved Lighthouse scores from ~50 to 95+ across multiple projects',
+        ]
+      },
+      {
+        title: 'Junior Web Developer',
+        company: 'Startup (Stealth)',
+        period: '2020.03 — 2021.05',
+        location: 'Seoul, South Korea',
+        bullets: [
+          'Developed RESTful APIs with Node.js / Express + PostgreSQL',
+          'Integrated third-party APIs (Kakao Maps, payment gateways)',
+          'Participated in Agile sprints and code review processes',
+        ]
+      },
+    ];
+
+    jobs.forEach(j => {
+      print(`<div class="entry">
+        <div class="entry-title">${j.title}</div>
+        <div class="entry-sub">${j.company}</div>
+        <div class="entry-meta">${j.period} &nbsp;·&nbsp; ${j.location}</div>
+        <div class="entry-desc">${j.bullets.map(b => `• ${b}`).join('<br>')}</div>
+      </div>`);
+    });
+    blank();
+  },
+
+  education() {
+    blank();
+    print('<span class="section-title">▶ EDUCATION & CERTIFICATIONS</span>');
+    blank();
+
+    print(`<div class="entry">
+      <div class="entry-title">B.S. Computer Science & Engineering</div>
+      <div class="entry-sub">Konkuk University</div>
+      <div class="entry-meta">2016 — 2022 &nbsp;·&nbsp; Seoul, South Korea</div>
+      <div class="entry-desc">• Major: Software Engineering &nbsp;|&nbsp; GPA: 3.7/4.5<br>• Capstone: AI-powered traffic analysis system</div>
+    </div>`);
+
+    blank();
+    print('<span class="label">CERTIFICATIONS</span>');
+
+    const certs = [
+      ['정보처리기사', '2022', 'Human Resources Development Service of Korea'],
+      ['AWS Certified Developer – Associate', '2023', 'Amazon Web Services'],
+      ['Google Cloud Associate', '2024', 'Google'],
+    ];
+    certs.forEach(([name, year, issuer]) => {
+      print(`<div class="entry">
+        <div class="entry-title">${name}</div>
+        <div class="entry-sub">${issuer}</div>
+        <div class="entry-meta">Issued: ${year}</div>
+      </div>`);
+    });
+    blank();
+  },
+
+  skills() {
+    blank();
+    print('<span class="section-title">▶ SKILLS & PROFICIENCY</span>');
+    blank();
+
+    const skillGroups = [
+      {
+        group: 'Frontend',
+        bars: [
+          { name: 'React / Next.js', pct: 92 },
+          { name: 'TypeScript', pct: 88 },
+          { name: 'Vue.js', pct: 72 },
+          { name: 'CSS / Tailwind', pct: 85 },
+        ],
+        tags: ['React', 'Next.js', 'TypeScript', 'Tailwind CSS', 'Zustand', 'React Query', 'Storybook', 'Vite']
+      },
+      {
+        group: 'Backend',
+        bars: [
+          { name: 'Node / NestJS', pct: 88 },
+          { name: 'Python / FastAPI', pct: 75 },
+          { name: 'PostgreSQL', pct: 80 },
+          { name: 'Redis', pct: 70 },
+        ],
+        tags: ['NestJS', 'Express', 'FastAPI', 'PostgreSQL', 'MySQL', 'Redis', 'REST', 'GraphQL', 'WebSocket']
+      },
+      {
+        group: 'DevOps',
+        bars: [
+          { name: 'Docker / K8s', pct: 78 },
+          { name: 'AWS', pct: 80 },
+          { name: 'GitHub Actions', pct: 85 },
+          { name: 'Linux', pct: 82 },
+        ],
+        tags: ['Docker', 'Kubernetes', 'AWS ECS', 'S3', 'RDS', 'GitHub Actions', 'Nginx', 'Terraform']
+      },
+    ];
+
+    skillGroups.forEach(g => {
+      print(`<span class="label">[${g.group}]</span>`);
+      g.bars.forEach(s => {
+        const id = `bar-${Math.random().toString(36).slice(2)}`;
+        print(`<div class="skill-row">
+          <span class="skill-name">${s.name}</span>
+          <div class="bar-track"><div class="bar-fill" id="${id}"></div></div>
+          <span class="bar-pct">${s.pct}%</span>
+        </div>`);
+        setTimeout(() => {
+          const el = document.getElementById(id);
+          if (el) el.style.width = s.pct + '%';
+        }, 100);
+      });
+      print('<div style="margin:4px 0">' + g.tags.map(t => `<span class="tag">${t}</span>`).join('') + '</div>');
+      blank();
+    });
+  },
+
+  projects() {
+    blank();
+    print('<span class="section-title">▶ PROJECTS</span>');
+    blank();
+
+    const projects = [
+      {
+        name: 'FleetTrack Dashboard',
+        desc: 'Real-time fleet management system with live GPS tracking, route optimization, and driver analytics.',
+        stack: ['Next.js', 'NestJS', 'WebSocket', 'PostgreSQL', 'Redis', 'Docker'],
+        link: 'https://github.com/Chonghongwoo',
+        status: 'Production',
+      },
+      {
+        name: 'DevPortal CLI',
+        desc: 'Internal developer portal CLI tool for scaffolding microservices, managing secrets, and deploying to staging.',
+        stack: ['Node.js', 'TypeScript', 'Commander.js', 'AWS SDK'],
+        link: 'https://github.com/Chonghongwoo',
+        status: 'Open Source',
+      },
+      {
+        name: 'OpenMarket API',
+        desc: 'High-performance e-commerce REST API with Elasticsearch-powered search, inventory management, and payment integration.',
+        stack: ['FastAPI', 'PostgreSQL', 'Elasticsearch', 'Redis', 'Stripe API'],
+        link: 'https://github.com/Chonghongwoo',
+        status: 'Production',
+      },
+      {
+        name: 'Terminal Resume',
+        desc: 'This very site. A Matrix-rain, CRT-scanline, boot-sequence-having, interactive terminal resume. Built for maximum hacker aesthetic.',
+        stack: ['Vanilla JS', 'CSS Animations', 'GitHub Pages'],
+        link: 'https://github.com/Chonghongwoo/Chonghongwoo.github.io',
+        status: 'Live ✓',
+      },
+    ];
+
+    projects.forEach(p => {
+      const statusColor = p.status.includes('Live') ? 'success' : p.status === 'Open Source' ? 'info' : 'label';
+      print(`<div class="entry">
+        <div class="entry-title">${p.name} &nbsp;<span class="${statusColor}" style="font-size:11px">[${p.status}]</span></div>
+        <div class="entry-desc" style="margin-bottom:4px">${p.desc}</div>
+        <div>${p.stack.map(t => `<span class="tag">${t}</span>`).join('')}</div>
+        <div style="margin-top:4px"><a href="${p.link}" target="_blank" style="color:#00aaff;text-decoration:none;font-size:11px">⎋ ${p.link}</a></div>
+      </div>`);
+    });
+    blank();
+  },
+
+  contact() {
+    blank();
+    print('<span class="section-title">▶ CONTACT</span>');
+    blank();
+    print('&nbsp;&nbsp;<span class="label">NAME&nbsp;&nbsp;&nbsp;&nbsp;:</span> <span class="bright">Cheong Hongwoo</span>');
+    print('&nbsp;&nbsp;<span class="label">EMAIL&nbsp;&nbsp;&nbsp;:</span> <a href="mailto:xhsslahs@gmail.com" style="color:#00aaff;text-decoration:none">xhsslahs@gmail.com</a>');
+    print('&nbsp;&nbsp;<span class="label">GITHUB&nbsp;&nbsp;:</span> <a href="https://github.com/Chonghongwoo" target="_blank" style="color:#00aaff;text-decoration:none">github.com/Chonghongwoo</a>');
+    print('&nbsp;&nbsp;<span class="label">LOCATION:</span> <span class="bright">Seoul, South Korea 🇰🇷</span>');
+    print('&nbsp;&nbsp;<span class="label">COMPANY&nbsp;:</span> <span class="bright">MOBYUS</span>');
+    print('&nbsp;&nbsp;<span class="label">STATUS&nbsp;&nbsp;:</span> <span class="success">● Open to opportunities</span>');
+    blank();
+    print('<span class="dim"># Feel free to reach out. I respond within 24h.</span>');
+    blank();
+  },
+
+  neofetch() {
+    blank();
+    const art = `
+   ██████╗
+  ██╔════╝
+  ██║  ███╗
+  ██║   ██║
+  ╚██████╔╝
+   ╚═════╝ `;
+    const info = [
+      `<span class="bright">hongwoo</span><span class="dim">@</span><span class="bright">MOBYUS</span>`,
+      `<span class="dim">─────────────────</span>`,
+      `<span class="label">OS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>: Developer v3.0 LTS`,
+      `<span class="label">Host&nbsp;&nbsp;&nbsp;&nbsp;</span>: Mac mini (M2 Pro)`,
+      `<span class="label">Shell&nbsp;&nbsp;&nbsp;</span>: zsh 5.9`,
+      `<span class="label">Role&nbsp;&nbsp;&nbsp;&nbsp;</span>: Full Stack Developer`,
+      `<span class="label">Location</span>: Seoul, South Korea`,
+      `<span class="label">Company&nbsp;</span>: MOBYUS`,
+      `<span class="label">Coffee&nbsp;&nbsp;</span>: Americano, black`,
+      `<span class="label">Uptime&nbsp;&nbsp;</span>: ${getUptime()}`,
+      `<span class="label">Memory&nbsp;&nbsp;</span>: Unlimited (coffee-powered)`,
+      ``,
+      `<span style="color:#ff5f57">████</span><span style="color:#febc2e">████</span><span style="color:#28c840">████</span><span style="color:#007aff">████</span><span style="color:#bf5af2">████</span>`,
+    ];
+
+    const artLines = art.split('\n');
+    const maxLines = Math.max(artLines.length, info.length);
+    for (let i = 0; i < maxLines; i++) {
+      const a = (artLines[i] || '').padEnd(20);
+      const b = info[i] || '';
+      print(`<span class="neo-art">${a}</span>&nbsp;&nbsp;<span class="neo-info">${b}</span>`);
+    }
+    blank();
+  },
+
+  clear() {
+    output.innerHTML = '';
+  },
+
+  'sudo hire hongwoo'() {
+    blank();
+    print('<span class="success">[sudo] password for recruiter: ••••••••</span>');
+    setTimeout(() => {
+      blank();
+      print(`<div class="hire-box">
+        <div class="hire-title">🚀 ACCESS GRANTED — INITIATING HIRE SEQUENCE</div>
+        <br>
+        <span class="bright">Candidate: Cheong Hongwoo</span><br>
+        <span class="label">Status&nbsp;&nbsp;:</span> <span class="success">✓ HIGHLY RECOMMENDED</span><br>
+        <span class="label">Reason&nbsp;&nbsp;:</span> Builds things that work AND look cool<br>
+        <span class="label">Warning&nbsp;:</span> <span class="amber">May over-engineer terminal UIs</span><br>
+        <br>
+        <span class="dim"># To proceed, run: contact → xhsslahs@gmail.com</span>
+      </div>`);
+      blank();
+    }, 800);
+  },
+};
+
+function getUptime() {
+  const start = new Date('2020-03-01');
+  const now = new Date();
+  const years = now.getFullYear() - start.getFullYear();
+  const months = now.getMonth() - start.getMonth() + years * 12;
+  return `${Math.floor(months/12)}y ${months%12}m (as a dev)`;
+}
+
+// ══════════════════════════════════════
+//  Welcome Banner
+// ══════════════════════════════════════
+async function showWelcome() {
+  print(`<span class="ascii">
+  ██╗  ██╗ ██████╗ ███╗  ██╗ ██████╗ ██╗    ██╗ ██████╗  ██████╗
+  ██║  ██║██╔═══██╗████╗ ██║██╔════╝ ██║    ██║██╔═══██╗██╔═══██╗
+  ███████║██║   ██║██╔██╗██║██║  ███╗██║ █╗ ██║██║   ██║██║   ██║
+  ██╔══██║██║   ██║██║╚████║██║   ██║██║███╗██║██║   ██║██║   ██║
+  ██║  ██║╚██████╔╝██║ ╚███║╚██████╔╝╚███╔███╔╝╚██████╔╝╚██████╔╝
+  ╚═╝  ╚═╝ ╚═════╝ ╚═╝  ╚══╝ ╚═════╝  ╚══╝╚══╝  ╚═════╝  ╚═════╝</span>`);
+  blank();
+  print('<span class="bright">&nbsp;&nbsp;Full Stack Developer &nbsp;·&nbsp; MOBYUS &nbsp;·&nbsp; Seoul</span>');
+  print('<span class="dim">&nbsp;&nbsp;xhsslahs@gmail.com &nbsp;·&nbsp; github.com/Chonghongwoo</span>');
+  blank();
+  print('<span class="dim">─────────────────────────────────────────────────────</span>');
+  print('&nbsp;&nbsp;Type <span class="label">help</span> to see available commands.');
+  print('<span class="dim">─────────────────────────────────────────────────────</span>');
+  blank();
+}
+
+// ══════════════════════════════════════
+//  Input Handler
+// ══════════════════════════════════════
+const input = document.getElementById('cmd-input');
+const history = [];
+let histIdx = -1;
+
+input.addEventListener('keydown', async (e) => {
+  if (e.key === 'Enter') {
+    const raw = input.value.trim();
+    if (!raw) return;
+    history.unshift(raw);
+    histIdx = -1;
+    input.value = '';
+
+    print(`<span class="cmd-echo">${escapeHtml(raw)}</span>`);
+    blank();
+
+    const cmd = raw.toLowerCase();
+    if (commands[cmd]) {
+      await commands[cmd]();
+    } else if (cmd.startsWith('sudo ') && cmd !== 'sudo hire hongwoo') {
+      print(`<span class="error">sudo: ${escapeHtml(raw.slice(5))}: permission denied (nice try)</span>`);
+      blank();
+    } else {
+      print(`<span class="error">bash: ${escapeHtml(raw)}: command not found</span>`);
+      print('<span class="dim">Type <span class="label">help</span> for available commands.</span>');
+      blank();
+    }
+  } else if (e.key === 'ArrowUp') {
+    e.preventDefault();
+    if (histIdx < history.length - 1) {
+      histIdx++;
+      input.value = history[histIdx];
+    }
+  } else if (e.key === 'ArrowDown') {
+    e.preventDefault();
+    if (histIdx > 0) {
+      histIdx--;
+      input.value = history[histIdx];
+    } else {
+      histIdx = -1;
+      input.value = '';
+    }
+  } else if (e.key === 'Tab') {
+    e.preventDefault();
+    const partial = input.value.toLowerCase();
+    const allCmds = [...Object.keys(commands), 'sudo hire hongwoo'];
+    const match = allCmds.find(c => c.startsWith(partial));
+    if (match) input.value = match;
+  } else if (e.key === 'l' && e.ctrlKey) {
+    e.preventDefault();
+    commands.clear();
+  }
+});
+
+function escapeHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// Keep focus on input
+document.addEventListener('click', () => input.focus());
+document.addEventListener('keydown', (e) => {
+  if (document.activeElement !== input && !['Meta','Control','Alt'].includes(e.key)) {
+    input.focus();
+  }
+});
+
+// ══════════════════════════════════════
+//  Start
+// ══════════════════════════════════════
+runBoot();
+</script>
+</body>
+</html>
