@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>HONGWOO — Terminal Resume</title>
+<title>정홍우 — Game Developer Terminal Resume</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
 
@@ -335,7 +335,7 @@
         <div class="dot yellow"></div>
         <div class="dot green"></div>
       </div>
-      <div class="title-text">hongwoo@MOBYUS — resume v1.0.0</div>
+      <div class="title-text">hongwoo@GameDev — portfolio v2.0.0</div>
     </div>
     <div class="output" id="output"></div>
     <div class="input-bar">
@@ -491,37 +491,27 @@ const commands = {
 
     const jobs = [
       {
-        title: 'Full Stack Developer',
-        company: 'MOBYUS',
-        period: '2023.01 — Present',
-        location: 'Seoul, South Korea',
+        title: 'Game Developer (Unity)',
+        company: 'KJ GAMES',
+        period: '2017.04 — 2017.11',
+        location: '서울',
         bullets: [
-          'Architected and maintained microservice-based web platforms serving 50K+ DAU',
-          'Led migration from monolith to Next.js + NestJS stack, reducing TTFB by 40%',
-          'Built real-time fleet tracking dashboard with WebSocket & React',
-          'Established CI/CD pipelines with GitHub Actions + Docker + AWS ECS',
+          'Fight Mania UI 개발 담당 — NGUI 기반 로그인·상점 화면 제작',
+          'GPGS(Google Play Game Services) 연동으로 소셜 로그인 및 랭킹 구현',
+          'Google Play 결제 모듈 연동 및 인앱 구매 흐름 구현',
+          '서버 프로그래머와 협업하여 기존 UI 양식에 맞춘 화면 작업',
         ]
       },
       {
-        title: 'Frontend Developer',
-        company: 'Freelance / Contract',
-        period: '2021.06 — 2022.12',
-        location: 'Remote',
+        title: 'Game Developer (Unreal / VR)',
+        company: '매크로그래프 VR본부',
+        period: '2016.09 — 2017.03',
+        location: '서울',
         bullets: [
-          'Delivered 10+ client projects (e-commerce, SaaS dashboards, landing pages)',
-          'Built reusable component libraries with React & Storybook',
-          'Improved Lighthouse scores from ~50 to 95+ across multiple projects',
-        ]
-      },
-      {
-        title: 'Junior Web Developer',
-        company: 'Startup (Stealth)',
-        period: '2020.03 — 2021.05',
-        location: 'Seoul, South Korea',
-        bullets: [
-          'Developed RESTful APIs with Node.js / Express + PostgreSQL',
-          'Integrated third-party APIs (Kakao Maps, payment gateways)',
-          'Participated in Agile sprints and code review processes',
+          '"드림 웍스(Dream Walks)" VR 콘텐츠 개발 참여',
+          '시뮬레이터 제조사 제공 SDK 기반 JSON 입출력 연동 구현',
+          '시선(Gaze) 기반 인터랙티브 퀴즈 컨텐츠 추가 개발',
+          '동대문 K-LIVE, 광화문 KT스퀘어 전시 실사용 배포',
         ]
       },
     ];
@@ -534,36 +524,51 @@ const commands = {
         <div class="entry-desc">${j.bullets.map(b => `• ${b}`).join('<br>')}</div>
       </div>`);
     });
+
+    blank();
+    print('<span class="label">TRAINING / 추가 활동</span>');
+    blank();
+
+    const trainings = [
+      {
+        title: '서울게임아카데미 개발자 양성 과정',
+        period: '2017.11 — 2018.11',
+        desc: '2D API, 3D API, DirectX9, Unity 수업 및 팀 프로젝트 제작'
+      },
+      {
+        title: '에이콘 아카데미 VR 콘텐츠 개발자 양성 과정',
+        period: '2016.05 — 2016.08',
+        desc: 'C++(포인터 전까지), Unity VR(Google VR SDK), MR 프로젝트(포켓몬 GO 참고) 제작'
+      },
+    ];
+    trainings.forEach(t => {
+      print(`<div class="entry">
+        <div class="entry-title">${t.title}</div>
+        <div class="entry-meta">${t.period}</div>
+        <div class="entry-desc">• ${t.desc}</div>
+      </div>`);
+    });
     blank();
   },
 
   education() {
     blank();
-    print('<span class="section-title">▶ EDUCATION & CERTIFICATIONS</span>');
+    print('<span class="section-title">▶ EDUCATION</span>');
     blank();
 
     print(`<div class="entry">
-      <div class="entry-title">B.S. Computer Science & Engineering</div>
-      <div class="entry-sub">Konkuk University</div>
-      <div class="entry-meta">2016 — 2022 &nbsp;·&nbsp; Seoul, South Korea</div>
-      <div class="entry-desc">• Major: Software Engineering &nbsp;|&nbsp; GPA: 3.7/4.5<br>• Capstone: AI-powered traffic analysis system</div>
+      <div class="entry-title">게임 미디어 학과 졸업</div>
+      <div class="entry-sub">계원 디자인 예술 대학 [경기]</div>
+      <div class="entry-meta">2011 — 2016</div>
+      <div class="entry-desc">• 게임 기획, 그래픽, 프로그래밍 통합 교육<br>• 졸업 작품: "뮤즈 러너" (리듬 게임) 제작</div>
     </div>`);
 
-    blank();
-    print('<span class="label">CERTIFICATIONS</span>');
+    print(`<div class="entry">
+      <div class="entry-title">일반고 졸업</div>
+      <div class="entry-sub">호평 고등학교 [경기]</div>
+      <div class="entry-meta">2009 — 2011</div>
+    </div>`);
 
-    const certs = [
-      ['정보처리기사', '2022', 'Human Resources Development Service of Korea'],
-      ['AWS Certified Developer – Associate', '2023', 'Amazon Web Services'],
-      ['Google Cloud Associate', '2024', 'Google'],
-    ];
-    certs.forEach(([name, year, issuer]) => {
-      print(`<div class="entry">
-        <div class="entry-title">${name}</div>
-        <div class="entry-sub">${issuer}</div>
-        <div class="entry-meta">Issued: ${year}</div>
-      </div>`);
-    });
     blank();
   },
 
@@ -574,34 +579,34 @@ const commands = {
 
     const skillGroups = [
       {
-        group: 'Frontend',
+        group: 'Game Engine',
         bars: [
-          { name: 'React / Next.js', pct: 92 },
-          { name: 'TypeScript', pct: 88 },
-          { name: 'Vue.js', pct: 72 },
-          { name: 'CSS / Tailwind', pct: 85 },
+          { name: 'Unity (C#)', pct: 88 },
+          { name: 'Unreal Engine', pct: 65 },
+          { name: 'UGUI / NGUI', pct: 82 },
+          { name: 'VR 개발', pct: 70 },
         ],
-        tags: ['React', 'Next.js', 'TypeScript', 'Tailwind CSS', 'Zustand', 'React Query', 'Storybook', 'Vite']
+        tags: ['Unity', 'Unreal Engine 4', 'C#', 'UGUI', 'NGUI', 'Google VR SDK', 'Oculus SDK', 'XR']
       },
       {
-        group: 'Backend',
+        group: 'Programming',
         bars: [
-          { name: 'Node / NestJS', pct: 88 },
-          { name: 'Python / FastAPI', pct: 75 },
-          { name: 'PostgreSQL', pct: 80 },
-          { name: 'Redis', pct: 70 },
+          { name: 'C#', pct: 85 },
+          { name: 'C++', pct: 60 },
+          { name: 'DirectX 9', pct: 55 },
+          { name: '2D/3D API', pct: 58 },
         ],
-        tags: ['NestJS', 'Express', 'FastAPI', 'PostgreSQL', 'MySQL', 'Redis', 'REST', 'GraphQL', 'WebSocket']
+        tags: ['C#', 'C++', 'DirectX9', '2D API', '3D API', 'OOP', '자료구조', '배열/리스트']
       },
       {
-        group: 'DevOps',
+        group: 'Platform / Tools',
         bars: [
-          { name: 'Docker / K8s', pct: 78 },
-          { name: 'AWS', pct: 80 },
-          { name: 'GitHub Actions', pct: 85 },
-          { name: 'Linux', pct: 82 },
+          { name: 'Google Play', pct: 80 },
+          { name: 'iOS App Store', pct: 65 },
+          { name: 'GPGS', pct: 75 },
+          { name: 'Git', pct: 70 },
         ],
-        tags: ['Docker', 'Kubernetes', 'AWS ECS', 'S3', 'RDS', 'GitHub Actions', 'Nginx', 'Terraform']
+        tags: ['Google Play', 'App Store', 'GPGS', 'Game Center', 'AdMob', 'In-App Purchase', 'Git', 'JSON']
       },
     ];
 
@@ -631,42 +636,46 @@ const commands = {
 
     const projects = [
       {
-        name: 'FleetTrack Dashboard',
-        desc: 'Real-time fleet management system with live GPS tracking, route optimization, and driver analytics.',
-        stack: ['Next.js', 'NestJS', 'WebSocket', 'PostgreSQL', 'Redis', 'Docker'],
-        link: 'https://github.com/Chonghongwoo',
-        status: 'Production',
+        name: '뮤직 포레스트 (Music Forest)',
+        desc: '음악의 사운드 웨이브를 분석해 자동으로 장애물을 배치하는 리듬+러닝 하이브리드 게임. 1인 개발 (기획·그래픽·프로그래밍). 광고 수익화 적용.',
+        stack: ['Unity', 'C#', 'UGUI', 'Google Play', 'AdMob'],
+        link: 'https://youtu.be/mHlSQ_Kl0Ao',
+        linkLabel: '▶ YouTube 데모',
+        status: '1인 개발',
       },
       {
-        name: 'DevPortal CLI',
-        desc: 'Internal developer portal CLI tool for scaffolding microservices, managing secrets, and deploying to staging.',
-        stack: ['Node.js', 'TypeScript', 'Commander.js', 'AWS SDK'],
-        link: 'https://github.com/Chonghongwoo',
-        status: 'Open Source',
+        name: '마인 맨 (Mine Man)',
+        desc: '지뢰와 포탈로 몬스터를 잡아 포인트를 획득, 지뢰를 업그레이드해 최대한 오래 생존하는 아케이드 게임. 배열·리스트 자료구조 활용, GPGS·Game Center 랭킹 및 배너 광고 적용. 구글+iOS 동시 출시.',
+        stack: ['Unity', 'C#', 'UGUI', 'GPGS', 'Game Center', 'Google Play', 'App Store'],
+        link: 'https://youtu.be/UXfPIitnIfI',
+        linkLabel: '▶ YouTube 데모',
+        status: '1인 개발',
       },
       {
-        name: 'OpenMarket API',
-        desc: 'High-performance e-commerce REST API with Elasticsearch-powered search, inventory management, and payment integration.',
-        stack: ['FastAPI', 'PostgreSQL', 'Elasticsearch', 'Redis', 'Stripe API'],
-        link: 'https://github.com/Chonghongwoo',
-        status: 'Production',
+        name: '드림 웍스 (Dream Walks)',
+        desc: '가수 트와이스와 함께하는 서울 관광 VR 시뮬레이터 콘텐츠. 시뮬레이터 업체 SDK(JSON) 연동 및 시선 기반 인터랙티브 퀴즈 추가 개발. 동대문 K-LIVE·광화문 KT스퀘어 실전 전시.',
+        stack: ['Unreal Engine 4', 'C++', 'VR', 'Simulator SDK', 'JSON', 'Gaze Interaction'],
+        link: 'https://www.yna.co.kr/view/AKR20170113181900017',
+        linkLabel: '📰 연합뉴스 기사',
+        status: '매크로그래프',
       },
       {
-        name: 'Terminal Resume',
-        desc: 'This very site. A Matrix-rain, CRT-scanline, boot-sequence-having, interactive terminal resume. Built for maximum hacker aesthetic.',
-        stack: ['Vanilla JS', 'CSS Animations', 'GitHub Pages'],
-        link: 'https://github.com/Chonghongwoo/Chonghongwoo.github.io',
-        status: 'Live ✓',
+        name: '파이트 매니아 (Fight Mania)',
+        desc: '2:2·3:3·배틀로얄 방식의 실시간 격투 게임. GPGS 소셜 로그인·랭킹 연동, Google Play 인앱결제, 상점 UI 전담 개발.',
+        stack: ['Unity', 'C#', 'NGUI', 'GPGS', 'In-App Purchase', 'Google Play'],
+        link: 'https://youtu.be/SsIOPG7X-pc',
+        linkLabel: '▶ YouTube 데모',
+        status: 'KJ GAMES',
       },
     ];
 
     projects.forEach(p => {
-      const statusColor = p.status.includes('Live') ? 'success' : p.status === 'Open Source' ? 'info' : 'label';
+      const statusColor = p.status === '1인 개발' ? 'success' : p.status.includes('KJ') ? 'amber' : 'info';
       print(`<div class="entry">
-        <div class="entry-title">${p.name} &nbsp;<span class="${statusColor}" style="font-size:11px">[${p.status}]</span></div>
+        <div class="entry-title">${p.name} &nbsp;<span class="${statusColor}" style="font-size:11px;color:var(--amber)">[${p.status}]</span></div>
         <div class="entry-desc" style="margin-bottom:4px">${p.desc}</div>
         <div>${p.stack.map(t => `<span class="tag">${t}</span>`).join('')}</div>
-        <div style="margin-top:4px"><a href="${p.link}" target="_blank" style="color:#00aaff;text-decoration:none;font-size:11px">⎋ ${p.link}</a></div>
+        <div style="margin-top:4px"><a href="${p.link}" target="_blank" style="color:#00aaff;text-decoration:none;font-size:11px">${p.linkLabel || '⎋ ' + p.link}</a></div>
       </div>`);
     });
     blank();
@@ -676,14 +685,16 @@ const commands = {
     blank();
     print('<span class="section-title">▶ CONTACT</span>');
     blank();
-    print('&nbsp;&nbsp;<span class="label">NAME&nbsp;&nbsp;&nbsp;&nbsp;:</span> <span class="bright">Cheong Hongwoo</span>');
+    print('&nbsp;&nbsp;<span class="label">NAME&nbsp;&nbsp;&nbsp;&nbsp;:</span> <span class="bright">정홍우 (Cheong Hongwoo)</span>');
+    print('&nbsp;&nbsp;<span class="label">BORN&nbsp;&nbsp;&nbsp;&nbsp;:</span> <span class="bright">1992.09.26</span>');
+    print('&nbsp;&nbsp;<span class="label">PHONE&nbsp;&nbsp;&nbsp;:</span> <span class="bright">010-6825-9901</span>');
     print('&nbsp;&nbsp;<span class="label">EMAIL&nbsp;&nbsp;&nbsp;:</span> <a href="mailto:xhsslahs@gmail.com" style="color:#00aaff;text-decoration:none">xhsslahs@gmail.com</a>');
     print('&nbsp;&nbsp;<span class="label">GITHUB&nbsp;&nbsp;:</span> <a href="https://github.com/Chonghongwoo" target="_blank" style="color:#00aaff;text-decoration:none">github.com/Chonghongwoo</a>');
-    print('&nbsp;&nbsp;<span class="label">LOCATION:</span> <span class="bright">Seoul, South Korea 🇰🇷</span>');
-    print('&nbsp;&nbsp;<span class="label">COMPANY&nbsp;:</span> <span class="bright">MOBYUS</span>');
-    print('&nbsp;&nbsp;<span class="label">STATUS&nbsp;&nbsp;:</span> <span class="success">● Open to opportunities</span>');
+    print('&nbsp;&nbsp;<span class="label">YOUTUBE&nbsp;:</span> <a href="https://www.youtube.com/channel/UCF-8vfK4k5Jp63CrjNygHfw" target="_blank" style="color:#00aaff;text-decoration:none">youtube.com/포트폴리오 채널</a>');
+    print('&nbsp;&nbsp;<span class="label">LOCATION:</span> <span class="bright">경기도 고양시 덕양구 🇰🇷</span>');
+    print('&nbsp;&nbsp;<span class="label">STATUS&nbsp;&nbsp;:</span> <span class="success">● 구직 중 / Open to opportunities</span>');
     blank();
-    print('<span class="dim"># Feel free to reach out. I respond within 24h.</span>');
+    print('<span class="dim"># 언제든지 연락 주세요. 24시간 내 답변 드립니다.</span>');
     blank();
   },
 
@@ -697,17 +708,18 @@ const commands = {
   ╚██████╔╝
    ╚═════╝ `;
     const info = [
-      `<span class="bright">hongwoo</span><span class="dim">@</span><span class="bright">MOBYUS</span>`,
-      `<span class="dim">─────────────────</span>`,
-      `<span class="label">OS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>: Developer v3.0 LTS`,
+      `<span class="bright">hongwoo</span><span class="dim">@</span><span class="bright">GameDev</span>`,
+      `<span class="dim">────────────────────────</span>`,
+      `<span class="label">OS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>: GameDev v1.0 (2016~)`,
       `<span class="label">Host&nbsp;&nbsp;&nbsp;&nbsp;</span>: Mac mini (M2 Pro)`,
       `<span class="label">Shell&nbsp;&nbsp;&nbsp;</span>: zsh 5.9`,
-      `<span class="label">Role&nbsp;&nbsp;&nbsp;&nbsp;</span>: Full Stack Developer`,
-      `<span class="label">Location</span>: Seoul, South Korea`,
-      `<span class="label">Company&nbsp;</span>: MOBYUS`,
-      `<span class="label">Coffee&nbsp;&nbsp;</span>: Americano, black`,
+      `<span class="label">Role&nbsp;&nbsp;&nbsp;&nbsp;</span>: Game Developer`,
+      `<span class="label">Engine&nbsp;&nbsp;</span>: Unity / Unreal Engine`,
+      `<span class="label">Lang&nbsp;&nbsp;&nbsp;&nbsp;</span>: C# / C++`,
+      `<span class="label">Location</span>: 경기도 고양시 🇰🇷`,
+      `<span class="label">School&nbsp;&nbsp;</span>: 계원 디자인 예술 대학`,
+      `<span class="label">Projects</span>: 4 shipped (Play Store + App Store)`,
       `<span class="label">Uptime&nbsp;&nbsp;</span>: ${getUptime()}`,
-      `<span class="label">Memory&nbsp;&nbsp;</span>: Unlimited (coffee-powered)`,
       ``,
       `<span style="color:#ff5f57">████</span><span style="color:#febc2e">████</span><span style="color:#28c840">████</span><span style="color:#007aff">████</span><span style="color:#bf5af2">████</span>`,
     ];
@@ -747,11 +759,10 @@ const commands = {
 };
 
 function getUptime() {
-  const start = new Date('2020-03-01');
+  const start = new Date('2016-03-01');
   const now = new Date();
-  const years = now.getFullYear() - start.getFullYear();
-  const months = now.getMonth() - start.getMonth() + years * 12;
-  return `${Math.floor(months/12)}y ${months%12}m (as a dev)`;
+  const months = (now.getFullYear() - start.getFullYear()) * 12 + (now.getMonth() - start.getMonth());
+  return `${Math.floor(months/12)}y ${months%12}m (게임 개발)`;
 }
 
 // ══════════════════════════════════════
@@ -766,8 +777,8 @@ async function showWelcome() {
   ██║  ██║╚██████╔╝██║ ╚███║╚██████╔╝╚███╔███╔╝╚██████╔╝╚██████╔╝
   ╚═╝  ╚═╝ ╚═════╝ ╚═╝  ╚══╝ ╚═════╝  ╚══╝╚══╝  ╚═════╝  ╚═════╝</span>`);
   blank();
-  print('<span class="bright">&nbsp;&nbsp;Full Stack Developer &nbsp;·&nbsp; MOBYUS &nbsp;·&nbsp; Seoul</span>');
-  print('<span class="dim">&nbsp;&nbsp;xhsslahs@gmail.com &nbsp;·&nbsp; github.com/Chonghongwoo</span>');
+  print('<span class="bright">&nbsp;&nbsp;Game Developer &nbsp;·&nbsp; Unity / Unreal &nbsp;·&nbsp; 경기도 고양시</span>');
+  print('<span class="dim">&nbsp;&nbsp;xhsslahs@gmail.com &nbsp;·&nbsp; github.com/Chonghongwoo &nbsp;·&nbsp; 010-6825-9901</span>');
   blank();
   print('<span class="dim">─────────────────────────────────────────────────────</span>');
   print('&nbsp;&nbsp;Type <span class="label">help</span> to see available commands.');
