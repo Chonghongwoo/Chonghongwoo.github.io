@@ -468,11 +468,12 @@ const commands = {
     blank();
     print('<span class="section-title">┌─ AVAILABLE COMMANDS ─────────────────────</span>');
     const cmds = [
-      ['experience', 'Work history & roles'],
-      ['education',  'Academic background & certifications'],
-      ['skills',     'Tech stack & proficiency'],
-      ['projects',   'Notable projects'],
-      ['contact',    'Get in touch'],
+      ['about',      '자기소개 / 성장 과정'],
+      ['experience', '경력 사항'],
+      ['education',  '학력 · 군복무 · 언어'],
+      ['skills',     '기술 스택 & 숙련도'],
+      ['projects',   '참여 / 개인 프로젝트'],
+      ['contact',    '연락처'],
       ['neofetch',   'System info (flex mode)'],
       ['clear',      'Clear terminal'],
       ['sudo hire hongwoo', '👀'],
@@ -486,20 +487,32 @@ const commands = {
 
   experience() {
     blank();
-    print('<span class="section-title">▶ WORK EXPERIENCE</span>');
+    print('<span class="section-title">▶ WORK EXPERIENCE &nbsp;<span class="dim">(총 4년 5개월)</span></span>');
     blank();
 
     const jobs = [
       {
-        title: 'Game Developer (Unity)',
+        title: 'Game Developer / 대리',
+        company: 'Mobyus & Valuechain',
+        period: '2024.04 — 현재',
+        location: '서울',
+        badge: '재직중',
+        bullets: [
+          '클라이언트 개발 담당',
+          '게임 클라이언트 개발 및 유지보수',
+        ]
+      },
+      {
+        title: 'Game Developer (Unity / Unreal)',
         company: 'KJ GAMES',
         period: '2017.04 — 2017.11',
         location: '서울',
+        badge: null,
         bullets: [
-          'Fight Mania UI 개발 담당 — NGUI 기반 로그인·상점 화면 제작',
-          'GPGS(Google Play Game Services) 연동으로 소셜 로그인 및 랭킹 구현',
-          'Google Play 결제 모듈 연동 및 인앱 구매 흐름 구현',
-          '서버 프로그래머와 협업하여 기존 UI 양식에 맞춘 화면 작업',
+          'Unity 기반 모바일 VR 개발',
+          'Unreal + HTC VIVE VR 콘텐츠 제작',
+          'Fight Mania — 실시간 온라인 모바일 격투게임 클라이언트',
+          'NGUI 기반 로그인·상점 UI, GPGS 소셜 로그인·랭킹, 인앱 결제 연동',
         ]
       },
       {
@@ -507,18 +520,20 @@ const commands = {
         company: '매크로그래프 VR본부',
         period: '2016.09 — 2017.03',
         location: '서울',
+        badge: null,
         bullets: [
-          '"드림 웍스(Dream Walks)" VR 콘텐츠 개발 참여',
-          '시뮬레이터 제조사 제공 SDK 기반 JSON 입출력 연동 구현',
+          '"드림 웍스(Dream Walks)" VR 시뮬레이터 콘텐츠 개발',
+          '시뮬레이터 제조사 SDK 기반 JSON 입출력 연동 구현',
           '시선(Gaze) 기반 인터랙티브 퀴즈 컨텐츠 추가 개발',
-          '동대문 K-LIVE, 광화문 KT스퀘어 전시 실사용 배포',
+          '동대문 K-LIVE, 광화문 KT스퀘어 실전 전시 배포',
         ]
       },
     ];
 
     jobs.forEach(j => {
+      const badge = j.badge ? `&nbsp;<span class="success" style="font-size:11px">[${j.badge}]</span>` : '';
       print(`<div class="entry">
-        <div class="entry-title">${j.title}</div>
+        <div class="entry-title">${j.title}${badge}</div>
         <div class="entry-sub">${j.company}</div>
         <div class="entry-meta">${j.period} &nbsp;·&nbsp; ${j.location}</div>
         <div class="entry-desc">${j.bullets.map(b => `• ${b}`).join('<br>')}</div>
@@ -526,19 +541,19 @@ const commands = {
     });
 
     blank();
-    print('<span class="label">TRAINING / 추가 활동</span>');
+    print('<span class="label">TRAINING / 교육</span>');
     blank();
 
     const trainings = [
       {
-        title: '서울게임아카데미 개발자 양성 과정',
+        title: '서울게임아카데미(SGA) 개발자 양성 과정',
         period: '2017.11 — 2018.11',
-        desc: '2D API, 3D API, DirectX9, Unity 수업 및 팀 프로젝트 제작'
+        desc: '2D API, 3D API, DirectX9, Unity 수업 및 2D API 프로젝트, DirectX9 팀 프로젝트 제작'
       },
       {
         title: '에이콘 아카데미 VR 콘텐츠 개발자 양성 과정',
         period: '2016.05 — 2016.08',
-        desc: 'C++(포인터 전까지), Unity VR(Google VR SDK), MR 프로젝트(포켓몬 GO 참고) 제작'
+        desc: 'C++(포인터 전까지), Unity VR(Google VR SDK), 포켓몬GO 참고 MR 프로젝트 제작'
       },
     ];
     trainings.forEach(t => {
@@ -569,6 +584,19 @@ const commands = {
       <div class="entry-meta">2009 — 2011</div>
     </div>`);
 
+    blank();
+    print('<span class="label">MILITARY SERVICE</span>');
+    print(`<div class="entry">
+      <div class="entry-title">육군 병장 만기 전역</div>
+      <div class="entry-meta">2012.03 — 2014.12</div>
+      <div class="entry-desc">• 병역 의무 이행 완료 (군필)</div>
+    </div>`);
+
+    blank();
+    print('<span class="label">LANGUAGE</span>');
+    print('&nbsp;&nbsp;<span class="label">한국어</span> &nbsp;— <span class="bright">Native</span>');
+    print('&nbsp;&nbsp;<span class="label">영어</span> &nbsp;&nbsp;&nbsp;— <span class="dim">간단 대화 가능 (하)</span>');
+    print('&nbsp;&nbsp;<span class="label">일본어</span> &nbsp;— <span class="dim">간단 대화 가능 (하)</span>');
     blank();
   },
 
@@ -692,7 +720,8 @@ const commands = {
     print('&nbsp;&nbsp;<span class="label">GITHUB&nbsp;&nbsp;:</span> <a href="https://github.com/Chonghongwoo" target="_blank" style="color:#00aaff;text-decoration:none">github.com/Chonghongwoo</a>');
     print('&nbsp;&nbsp;<span class="label">YOUTUBE&nbsp;:</span> <a href="https://www.youtube.com/channel/UCF-8vfK4k5Jp63CrjNygHfw" target="_blank" style="color:#00aaff;text-decoration:none">youtube.com/포트폴리오 채널</a>');
     print('&nbsp;&nbsp;<span class="label">LOCATION:</span> <span class="bright">경기도 고양시 덕양구 🇰🇷</span>');
-    print('&nbsp;&nbsp;<span class="label">STATUS&nbsp;&nbsp;:</span> <span class="success">● 구직 중 / Open to opportunities</span>');
+    print('&nbsp;&nbsp;<span class="label">COMPANY&nbsp;:</span> <span class="bright">Mobyus &amp; Valuechain (재직중)</span>');
+    print('&nbsp;&nbsp;<span class="label">STATUS&nbsp;&nbsp;:</span> <span class="success">● 재직중 / 이직 기회 검토 중</span>');
     blank();
     print('<span class="dim"># 언제든지 연락 주세요. 24시간 내 답변 드립니다.</span>');
     blank();
@@ -713,12 +742,14 @@ const commands = {
       `<span class="label">OS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>: GameDev v1.0 (2016~)`,
       `<span class="label">Host&nbsp;&nbsp;&nbsp;&nbsp;</span>: Mac mini (M2 Pro)`,
       `<span class="label">Shell&nbsp;&nbsp;&nbsp;</span>: zsh 5.9`,
-      `<span class="label">Role&nbsp;&nbsp;&nbsp;&nbsp;</span>: Game Developer`,
-      `<span class="label">Engine&nbsp;&nbsp;</span>: Unity / Unreal Engine`,
-      `<span class="label">Lang&nbsp;&nbsp;&nbsp;&nbsp;</span>: C# / C++`,
+      `<span class="label">Role&nbsp;&nbsp;&nbsp;&nbsp;</span>: Game Developer / 대리`,
+      `<span class="label">Company&nbsp;</span>: Mobyus &amp; Valuechain`,
+      `<span class="label">Engine&nbsp;&nbsp;</span>: Unity / Unreal Engine 4`,
+      `<span class="label">Lang&nbsp;&nbsp;&nbsp;&nbsp;</span>: C# / C++ / DirectX9`,
       `<span class="label">Location</span>: 경기도 고양시 🇰🇷`,
       `<span class="label">School&nbsp;&nbsp;</span>: 계원 디자인 예술 대학`,
-      `<span class="label">Projects</span>: 4 shipped (Play Store + App Store)`,
+      `<span class="label">Shipped&nbsp;</span>: 4 projects (Play Store + App Store)`,
+      `<span class="label">Military</span>: 육군 병장 만기 전역 ✓`,
       `<span class="label">Uptime&nbsp;&nbsp;</span>: ${getUptime()}`,
       ``,
       `<span style="color:#ff5f57">████</span><span style="color:#febc2e">████</span><span style="color:#28c840">████</span><span style="color:#007aff">████</span><span style="color:#bf5af2">████</span>`,
@@ -731,6 +762,27 @@ const commands = {
       const b = info[i] || '';
       print(`<span class="neo-art">${a}</span>&nbsp;&nbsp;<span class="neo-info">${b}</span>`);
     }
+    blank();
+  },
+
+  about() {
+    blank();
+    print('<span class="section-title">▶ ABOUT ME / 자기소개</span>');
+    blank();
+    print('<span class="label">[성장 과정]</span>');
+    print('<div style="color:#aaa;font-size:12px;line-height:1.9;border-left:2px solid #1e3a1e;padding-left:10px;margin:4px 0">');
+    print('아버지가 일러스트레이터이셔서 어릴 적부터 그림에 친숙했습니다.<br>게임 일러스트를 카피하고 창작하는 것을 즐기며<br>"내 그림을 게임에 넣겠다"는 목표로 계원예대 게임미디어학과에 진학했습니다.');
+    print('</div>');
+    blank();
+    print('<span class="label">[성격 및 장단점]</span>');
+    print('<div style="color:#aaa;font-size:12px;line-height:1.9;border-left:2px solid #1e3a1e;padding-left:10px;margin:4px 0">');
+    print('<span class="bright">장점:</span> 전문 분야에 대한 강한 자존심과 집요함 — 더 잘하기 위해 끊임없이 노력합니다.<br><span class="bright">단점:</span> 모르는 부분을 혼자 먼저 해결하려는 경향 → 속도가 느려질 수 있음을 인지하고 개선 중.');
+    print('</div>');
+    blank();
+    print('<span class="label">[지원 동기]</span>');
+    print('<div style="color:#aaa;font-size:12px;line-height:1.9;border-left:2px solid #1e3a1e;padding-left:10px;margin:4px 0">');
+    print('팀원과 아이디어를 나누고 기술을 공유해 세계적인 게임을 만드는 데 일조하고 싶습니다.<br>어릴 때부터 쌓아온 게임에 대한 이해와 그림 감각을 바탕으로,<br>시각적으로 더 센스 있는 화면을 구성하는 프로그래머가 되겠습니다.');
+    print('</div>');
     blank();
   },
 
